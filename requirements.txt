@@ -1,0 +1,7 @@
+/* modules that are required for this project */
+import redis
+import sqlite3
+import requests
+from bs4 import BeautifulSoup
+import re
+from fake_useragent import UserAgent

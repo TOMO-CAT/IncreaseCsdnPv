@@ -10,12 +10,11 @@ while True:
     start_hour = int(start_time.strftime('%H'))
 
     while True:
-
-
         # count the total_visit_num and succ_num
         total_visit_num += 1
         x = 10*random.random()
         time.sleep(0.5)
+        # set the succ_rate to be 50%
         if x >= 5:
             succ_num += 1
         pv_log = "\rhour: {}, the overall progress of succ_num/total_visit_num: {}/{}".format(start_hour, succ_num,
