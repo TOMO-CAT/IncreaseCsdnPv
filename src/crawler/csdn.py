@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 import random
 from crawler.random_header import RandomFakeHeaders
 from ippool.redis_ippool import IPPool
@@ -45,9 +47,11 @@ class CSDN(object):
             print("Info: now we are visiting %s..."%article_list_url)
 
             response = self.visit_csdn(article_list_url)
+            # print("Debug: " + response.text)
             if response == None:
                 print("Fatal: get article info from %s fail" %article_list_url)
             article_infos = self.__parse_html_to_article_info(response.text)
+            # print("Debug: " + article_infos)
 
             if article_infos is None:
                 print("Fatal: parse html to article info fail")
@@ -90,8 +94,9 @@ class CSDN(object):
                     continue
                 else:
                     article_infos.append(article_info)
+                print("Info: parse content successfully")
         except Exception:
-            print("Fatal: parse html failed, please check the html")
+            print("Fatal: parse content failed")
             return None
         return article_infos
 
@@ -101,23 +106,42 @@ class CSDN(object):
         return 0
 
 if __name__ == "__main__":
+    # unit test
     test = CSDN()
-    response = test.visit_csdn("https://blog.csdn.net/TOMOCAT/article/list/1")
+    article_list_url = "https://blog.csdn.net/TOMOCAT/article/list/1"
+    response = test.visit_csdn(article_list_url)
     if response.status_code == 200:
         print("Test: get response from url successfully")
     else:
         print("Test: get response fail")
-
     soup = BeautifulSoup(response.text, "html.parser")
     contents = soup.find_all("div", {"class", "article-item-box csdn-tracking-statistics"})
     if contents != None:
         print("Tets: get contents successfully")
     # print(contents)
+    article_infos = []
+    try:
+        for content in contents:
+            article_info = {}
+            article_info['id'] = content.attrs['data-articleid']
+            article_info['href'] = content.a.attrs['href']
+            article_info['title'] = re.sub(r"\s+|\n", "", content.a.get_text())
+            article_info['date'] = content.find("span", {"class": "date"}).get_text()
+            str_temp = content.find_all("span", {"class": "read-num"})
+            article_info['read_num'] = int(re.findall(r'\d+', str_temp[0].get_text())[0])
+            article_info['commit_num'] = int(re.findall(r"\d+", str_temp[1].get_text())[0])
 
+            # avoid anti-crawler strategy
+            if (article_info['id'] == '82762601') | (article_info['title'] == '原帝都的凛冬'):
+                continue
+            else:
+                article_infos.append(article_info)
+            print("Info: parse content successfully")
+    except Exception:
+        print("Fatal: parse content failed")
+    # print(article_infos)
+
+    # overall test
+    test = CSDN()
     all_infos = test.get_article_info()
     print(all_infos)
-
-
-
-
-
