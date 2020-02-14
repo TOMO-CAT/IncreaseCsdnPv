@@ -77,9 +77,8 @@ class CSDN(object):
         except Exception:
             print("Fatal: parse html failed, please check the html")
             return None
-
-        try:
-            for content in contents:
+        for content in contents:
+            try:
                 article_info = {}
                 article_info['id'] = content.attrs['data-articleid']
                 article_info['href'] = content.a.attrs['href']
@@ -95,9 +94,9 @@ class CSDN(object):
                 else:
                     article_infos.append(article_info)
                 print("Info: parse content successfully")
-        except Exception:
-            print("Fatal: parse content failed")
-            return None
+            except Exception:
+                print("Fatal: parse content failed")
+                continue
         return article_infos
 
 
@@ -139,7 +138,7 @@ if __name__ == "__main__":
             print("Info: parse content successfully")
     except Exception:
         print("Fatal: parse content failed")
-    # print(article_infos)
+    print(article_infos)
 
     # overall test
     test = CSDN()
